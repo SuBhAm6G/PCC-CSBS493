@@ -1,0 +1,118 @@
+----------------------------------------------------------------------------------
+-- Import IEEE library containing standard VHDL definitions
+----------------------------------------------------------------------------------
+library IEEE;
+
+----------------------------------------------------------------------------------
+-- Import std_logic and std_logic_vector datatypes
+----------------------------------------------------------------------------------
+use IEEE.STD_LOGIC_1164.ALL;
+
+----------------------------------------------------------------------------------
+-- Entity Declaration
+-- Defines the external interface of the 1:8 Demultiplexer
+----------------------------------------------------------------------------------
+entity demux is
+
+    Port (
+
+           -- Single input data line
+           data : in STD_LOGIC;
+
+           -- 3-bit select line
+           -- Determines which output receives the input value
+           selectline : in STD_LOGIC_VECTOR (2 downto 0);
+
+           -- 8-bit output bus
+           -- Only one output bit will receive the input at a time
+           out_data : out STD_LOGIC_VECTOR (7 downto 0)
+
+         );
+end demux;
+
+----------------------------------------------------------------------------------
+-- Architecture Section
+-- Contains the actual DEMUX logic
+----------------------------------------------------------------------------------
+architecture Behavioral of demux is
+
+begin
+
+    ----------------------------------------------------------------------------
+    -- Process executes whenever selectline changes
+    -- (Ideally data should also be included in the sensitivity list)
+    ----------------------------------------------------------------------------
+    process(selectline)
+
+    begin
+
+        ------------------------------------------------------------------------
+        -- First clear all outputs
+        -- This ensures only one output remains active
+        ------------------------------------------------------------------------
+        out_data <= "00000000";
+
+        ------------------------------------------------------------------------
+        -- Check the select line value
+        ------------------------------------------------------------------------
+        case selectline is
+
+            --------------------------------------------------------------------
+            -- If selectline = 000
+            -- Route input data to output bit 0
+            --------------------------------------------------------------------
+            when "000" => out_data(0) <= data;
+
+            --------------------------------------------------------------------
+            -- If selectline = 001
+            -- Route input data to output bit 1
+            --------------------------------------------------------------------
+            when "001" => out_data(1) <= data;
+
+            --------------------------------------------------------------------
+            -- If selectline = 010
+            -- Route input data to output bit 2
+            --------------------------------------------------------------------
+            when "010" => out_data(2) <= data;
+
+            --------------------------------------------------------------------
+            -- If selectline = 011
+            -- Route input data to output bit 3
+            --------------------------------------------------------------------
+            when "011" => out_data(3) <= data;
+
+            --------------------------------------------------------------------
+            -- If selectline = 100
+            -- Route input data to output bit 4
+            --------------------------------------------------------------------
+            when "100" => out_data(4) <= data;
+
+            --------------------------------------------------------------------
+            -- If selectline = 101
+            -- Route input data to output bit 5
+            --------------------------------------------------------------------
+            when "101" => out_data(5) <= data;
+
+            --------------------------------------------------------------------
+            -- If selectline = 110
+            -- Route input data to output bit 6
+            --------------------------------------------------------------------
+            when "110" => out_data(6) <= data;
+
+            --------------------------------------------------------------------
+            -- If selectline = 111
+            -- Route input data to output bit 7
+            --------------------------------------------------------------------
+            when "111" => out_data(7) <= data;
+
+            --------------------------------------------------------------------
+            -- For any invalid select value
+            -- Do nothing
+            --------------------------------------------------------------------
+            when others => null;
+
+        end case;
+
+    end process;
+
+end Behavioral;
