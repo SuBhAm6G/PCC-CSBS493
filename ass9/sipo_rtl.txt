@@ -1,0 +1,146 @@
+----------------------------------------------------------------------------------
+-- Import IEEE library
+----------------------------------------------------------------------------------
+library IEEE;
+
+----------------------------------------------------------------------------------
+-- Import std_logic and std_logic_vector datatypes
+----------------------------------------------------------------------------------
+use IEEE.STD_LOGIC_1164.ALL;
+
+----------------------------------------------------------------------------------
+-- Entity Declaration
+-- 4-bit Serial In Parallel Out Shift Register
+----------------------------------------------------------------------------------
+entity sipo is
+
+    Port (
+
+           -- Serial data input
+           data : in STD_LOGIC;
+
+           -- Common clock for all flip-flops
+           clk : in STD_LOGIC;
+
+           -- Reset input
+           reset : in STD_LOGIC;
+
+           -- 4-bit parallel output
+           Q : out STD_LOGIC_VECTOR (3 downto 0)
+
+         );
+
+end sipo;
+
+----------------------------------------------------------------------------------
+-- Architecture Section
+----------------------------------------------------------------------------------
+architecture Behavioral of sipo is
+
+    ----------------------------------------------------------------------------
+    -- Component Declaration
+    -- D Flip-Flop used as building block of the shift register
+    ----------------------------------------------------------------------------
+    component D_flipflop is
+
+        Port (
+
+               -- Data input of D Flip-Flop
+               D : in STD_LOGIC;
+
+               -- Clock input
+               clk : in STD_LOGIC;
+
+               -- Reset input
+               rs : in STD_LOGIC;
+
+               -- Main output
+               Q : out STD_LOGIC;
+
+               -- Complement output
+               Qb : out STD_LOGIC
+
+              );
+
+    end component;
+
+    ----------------------------------------------------------------------------
+    -- temp stores the outputs of all four flip-flops
+    ----------------------------------------------------------------------------
+    signal temp : STD_LOGIC_VECTOR (3 downto 0);
+
+    ----------------------------------------------------------------------------
+    -- dummy stores unused Qbar outputs
+    ----------------------------------------------------------------------------
+    signal dummy : STD_LOGIC_VECTOR (3 downto 0);
+
+begin
+
+    ----------------------------------------------------------------------------
+    -- First Flip-Flop
+    --
+    -- Receives serial input directly
+    --
+    -- After clock:
+    -- temp(0) <= data
+    ----------------------------------------------------------------------------
+    FF1: D_flipflop
+    PORT MAP(
+        D   => data,
+        rs  => reset,
+        clk => clk,
+        Q   => temp(0),
+        Qb  => dummy(0)
+    );
+
+    ----------------------------------------------------------------------------
+    -- Second Flip-Flop
+    --
+    -- Receives output of FF1
+    --
+    -- After clock:
+    -- temp(1) <= temp(0)
+    ----------------------------------------------------------------------------
+    FF2: D_flipflop
+    PORT MAP(
+        D   => temp(0),
+        rs  => reset,
+        clk => clk,
+        Q   => temp(1),
+        Qb  => dummy(1)
+    );
+
+    ----------------------------------------------------------------------------
+    -- Third Flip-Flop
+    --
+    -- Receives output of FF2
+    ----------------------------------------------------------------------------
+    FF3: D_flipflop
+    PORT MAP(
+        D   => temp(1),
+        rs  => reset,
+        clk => clk,
+        Q   => temp(2),
+        Qb  => dummy(2)
+    );
+
+    ----------------------------------------------------------------------------
+    -- Fourth Flip-Flop
+    --
+    -- Receives output of FF3
+    ----------------------------------------------------------------------------
+    FF4: D_flipflop
+    PORT MAP(
+        D   => temp(2),
+        rs  => reset,
+        clk => clk,
+        Q   => temp(3),
+        Qb  => dummy(3)
+    );
+
+    ----------------------------------------------------------------------------
+    -- Connect internal register contents to output bus
+    ----------------------------------------------------------------------------
+    Q <= temp;
+
+end Behavioral;
