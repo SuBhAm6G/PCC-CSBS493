@@ -1,0 +1,188 @@
+----------------------------------------------------------------------------------
+-- Import IEEE library
+----------------------------------------------------------------------------------
+library IEEE;
+
+----------------------------------------------------------------------------------
+-- Import std_logic datatype definitions
+----------------------------------------------------------------------------------
+use IEEE.STD_LOGIC_1164.ALL;
+
+----------------------------------------------------------------------------------
+-- Entity Declaration
+-- 4-bit Up/Down Counter
+----------------------------------------------------------------------------------
+entity updown_counter is
+
+    Port (
+
+           -- Clock input
+           clk : in STD_LOGIC;
+
+           -- Reset input
+           reset : in STD_LOGIC;
+
+           -- Direction control
+           -- 1 = Count Up
+           -- 0 = Count Down
+           updown : in STD_LOGIC;
+
+           -- 4-bit counter output
+           q : out STD_LOGIC_VECTOR (3 downto 0)
+
+         );
+
+end updown_counter;
+
+----------------------------------------------------------------------------------
+-- Architecture Section
+----------------------------------------------------------------------------------
+architecture Behavioral of updown_counter is
+
+    ----------------------------------------------------------------------------
+    -- JK Flip-Flop Component
+    ----------------------------------------------------------------------------
+    component jkflipflop is
+
+        Port (
+
+               j : in STD_LOGIC;
+               k : in STD_LOGIC;
+
+               Q : out STD_LOGIC;
+               Qbar : out STD_LOGIC;
+
+               clk : in STD_LOGIC;
+               reset : in STD_LOGIC
+
+             );
+
+    end component;
+
+    ----------------------------------------------------------------------------
+    -- Internal counter bits
+    ----------------------------------------------------------------------------
+    signal q_internal : STD_LOGIC_VECTOR(3 downto 0);
+
+    ----------------------------------------------------------------------------
+    -- J and K signals for each flip-flop
+    ----------------------------------------------------------------------------
+    signal j0, k0 : STD_LOGIC;
+    signal j1, k1 : STD_LOGIC;
+    signal j2, k2 : STD_LOGIC;
+    signal j3, k3 : STD_LOGIC;
+
+begin
+
+    ----------------------------------------------------------------------------
+    -- LSB Flip-Flop
+    --
+    -- J=K=1 causes toggle every clock pulse
+    ----------------------------------------------------------------------------
+    j0 <= '1';
+    k0 <= '1';
+
+    ----------------------------------------------------------------------------
+    -- FF1 Toggle Logic
+    --
+    -- Count Up:
+    -- Toggle when q0 = 1
+    --
+    -- Count Down:
+    -- Toggle when q0 = 0
+    ----------------------------------------------------------------------------
+    j1 <= ( q_internal(0) and updown ) or
+          ( not q_internal(0) and not updown );
+
+    k1 <= j1;
+
+    ----------------------------------------------------------------------------
+    -- FF2 Toggle Logic
+    --
+    -- Count Up:
+    -- Toggle when q1=1 and q0=1
+    --
+    -- Count Down:
+    -- Toggle when q1=0 and q0=0
+    ----------------------------------------------------------------------------
+    j2 <= ( q_internal(1) and q_internal(0) and updown ) or
+          ( not q_internal(1) and not q_internal(0) and not updown );
+
+    k2 <= j2;
+
+    ----------------------------------------------------------------------------
+    -- FF3 Toggle Logic
+    --
+    -- Count Up:
+    -- Toggle when q2=q1=q0=1
+    --
+    -- Count Down:
+    -- Toggle when q2=q1=q0=0
+    ----------------------------------------------------------------------------
+    j3 <= ( q_internal(2) and q_internal(1) and q_internal(0) and updown ) or
+          ( not q_internal(2) and not q_internal(1)
+            and not q_internal(0) and not updown );
+
+    k3 <= j3;
+
+    ----------------------------------------------------------------------------
+    -- JK Flip-Flop 0
+    -- Least Significant Bit
+    ----------------------------------------------------------------------------
+    FF0 : jkflipflop
+        port map (
+            clk   => clk,
+            reset => reset,
+            j     => j0,
+            k     => k0,
+            q     => q_internal(0)
+
+            -- NOTE:
+            -- Qbar is not connected.
+            -- May need:
+            -- Qbar => dummy(0)
+        );
+
+    ----------------------------------------------------------------------------
+    -- JK Flip-Flop 1
+    ----------------------------------------------------------------------------
+    FF1 : jkflipflop
+        port map (
+            clk   => clk,
+            reset => reset,
+            j     => j1,
+            k     => k1,
+            q     => q_internal(1)
+        );
+
+    ----------------------------------------------------------------------------
+    -- JK Flip-Flop 2
+    ----------------------------------------------------------------------------
+    FF2 : jkflipflop
+        port map (
+            clk   => clk,
+            reset => reset,
+            j     => j2,
+            k     => k2,
+            q     => q_internal(2)
+        );
+
+    ----------------------------------------------------------------------------
+    -- JK Flip-Flop 3
+    -- Most Significant Bit
+    ----------------------------------------------------------------------------
+    FF3 : jkflipflop
+        port map (
+            clk   => clk,
+            reset => reset,
+            j     => j3,
+            k     => k3,
+            q     => q_internal(3)
+        );
+
+    ----------------------------------------------------------------------------
+    -- Connect internal count value to output
+    ----------------------------------------------------------------------------
+    q <= q_internal;
+
+end Behavioral;
