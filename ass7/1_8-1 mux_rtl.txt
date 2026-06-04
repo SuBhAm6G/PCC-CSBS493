@@ -1,0 +1,61 @@
+-- Import IEEE standard library
+library IEEE;
+
+-- Import std_logic and std_logic_vector datatypes
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Entity defines the external interface of the circuit
+entity mux is
+    Port(
+        -- 8-bit input bus containing D0 to D7
+        data : in STD_LOGIC_VECTOR(7 downto 0);
+
+        -- 3-bit select line used to choose one input
+        selectline : in STD_LOGIC_VECTOR(2 downto 0);
+
+        -- Single-bit output
+        out_data : out STD_LOGIC
+    );
+end mux;
+
+-- Architecture contains the actual logic implementation
+architecture Behavioral of mux is
+begin
+
+    -- Process executes whenever selectline changes
+    process(selectline)
+    begin
+
+        -- Case statement checks select line value
+        case selectline is
+
+            -- If selectline = 000, output data(0)
+            when "000" => out_data <= data(0);
+
+            -- If selectline = 001, output data(1)
+            when "001" => out_data <= data(1);
+
+            -- If selectline = 010, output data(2)
+            when "010" => out_data <= data(2);
+
+            -- If selectline = 011, output data(3)
+            when "011" => out_data <= data(3);
+
+            -- If selectline = 100, output data(4)
+            when "100" => out_data <= data(4);
+
+            -- If selectline = 101, output data(5)
+            when "101" => out_data <= data(5);
+
+            -- If selectline = 110, output data(6)
+            when "110" => out_data <= data(6);
+
+            -- If selectline = 111, output data(7)
+            when "111" => out_data <= data(7);
+
+            -- Safety condition for invalid select values
+            when others => out_data <= '0';
+
+        end case;
+    end process;
+end Behavioral;
