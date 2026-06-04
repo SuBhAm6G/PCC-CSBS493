@@ -1,0 +1,62 @@
+----------------------------------------------------------------------------------
+-- Import IEEE library
+----------------------------------------------------------------------------------
+library IEEE;
+
+----------------------------------------------------------------------------------
+-- Import std_logic datatype definitions
+----------------------------------------------------------------------------------
+use IEEE.STD_LOGIC_1164.ALL;
+
+----------------------------------------------------------------------------------
+-- Entity Declaration
+-- Defines the external inputs and outputs of the D Flip-Flop
+----------------------------------------------------------------------------------
+entity D is
+
+    Port (
+
+           -- Data input
+           D : in STD_LOGIC;
+
+           -- Clock input
+           clk : in STD_LOGIC;
+
+           -- Main output
+           Q : out STD_LOGIC;
+
+           -- Complement output
+           Qbar : out STD_LOGIC
+
+         );
+
+end D;
+
+----------------------------------------------------------------------------------
+-- Architecture Section
+----------------------------------------------------------------------------------
+architecture Behavioral of D is
+    -- Internal storage element
+    signal temp : STD_LOGIC := '0';
+
+begin
+
+    process(clk)
+    begin
+
+        if rising_edge(clk) then
+
+            -- Store D into memory
+            temp <= D;
+
+        end if;
+
+    end process;
+
+    -- Output assignments
+    Q <= temp;
+
+    -- Complement output
+    Qbar <= not temp;
+
+end Behavioral;
